@@ -81,6 +81,36 @@ class Programme(Base):
 
     # İlişki tanımlaması
     university = relationship("University", back_populates="programmes")
+    
+class Country(Base):
+    __tablename__ = 'countries'
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column(String, nullable=False)
+    slug = Column(String, nullable=False, unique=True)
+    image_id = Column(UUID(as_uuid=True), ForeignKey('media.id'))
+    icon_id = Column(UUID(as_uuid=True), ForeignKey('media.id'))
+    living_cost = Column(Numeric)
+    universities_section_heading = Column(String, default="Popular Universities")
+    universities_section_link_label = Column(String, default="View all universities")
+    universities_section_link_href = Column(String, default="/universities")
+    countries_section_heading = Column(String, default="Discover Your Country")
+    countries_section_label = Column(String, default="View all countries")
+    countries_section_link_href = Column(String, default="/countries")
+    countries_section_heading_dynamic = Column(String)  # Bunu çekilen veriyle dinamik olarak dolduracağız
+    content_section_content = Column(JSON)
+    meta_title = Column(String)
+    meta_description = Column(String)
+    meta_image_id = Column(UUID(as_uuid=True), ForeignKey('media.id'))
+    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True))
+
+    # İlişkiler
+    universities = relationship("University", back_populates="country")
+    programmes = relationship("Programme", back_populates="country")
+
+University.country = relationship("Country", back_populates="universities")
+Programme.country = relationship("Country", back_populates="programmes")
 
 # Veritabanında tabloları oluştur
 Base.metadata.create_all(engine)
