@@ -1,7 +1,8 @@
-from sqlalchemy import create_engine, Column, String, Integer, Numeric, Boolean, DateTime, ForeignKey, JSON
+from sqlalchemy import create_engine, Column, String, Integer, Numeric, Boolean, DateTime, ForeignKey, JSON, TIMESTAMP, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 import uuid
 
 # SQLAlchemy için base sınıfı
@@ -81,6 +82,8 @@ class Programme(Base):
 
     # İlişki tanımlaması
     university = relationship("University", back_populates="programmes")
+    duration_category_id = Column(UUID(as_uuid=True), ForeignKey("duration_categories.id")) # Duration tablosuna olan bağlantı
+    duration_category = relationship("DurationCategory", back_populates="programmes") # Duration tablosu ile ilişki tanımlaması
     
 class Country(Base):
     __tablename__ = 'countries'
@@ -106,11 +109,40 @@ class Country(Base):
     created_at = Column(DateTime(timezone=True))
 
     # İlişkiler
-    universities = relationship("University", back_populates="country")
-    programmes = relationship("Programme", back_populates="country")
+    universities = relationship("University", back_populates="country") # Üniversiteler ile ilişki
+    programmes = relationship("Programme", back_populates="country") # Programlar ile ilişki
+    cities = relationship("City", back_populates="country")  # Şehirler ile ilişki
 
 University.country = relationship("Country", back_populates="universities")
 Programme.country = relationship("Country", back_populates="programmes")
+
+class City(Base):
+    __tablename__ = 'cities'
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    title = Column(String, nullable=False)  # Şehir ismi
+    slug = Column(String, nullable=False)  # Şehir slug
+    image_id = Column(UUID(as_uuid=True), ForeignKey("media.id"))  # Resim bağlantısı
+    country_id = Column(UUID(as_uuid=True), ForeignKey("countries.id"), nullable=False)  # Ülke bağlantısı
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text('NOW()'), nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=True), onupdate=datetime.utcnow, server_default=text('NOW()'), nullable=False)
+
+    # İlişkiler
+    country = relationship("Country", back_populates="cities")
+    image = relationship("Media", foreign_keys=[image_id])
+
+class DurationCategory(Base):
+    __tablename__ = 'duration_categories'
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    title = Column(String, nullable=False)  # Süre bilgisi (örneğin: 4 sene, 1 sezon)
+    slug = Column(String, nullable=False)  # Slug yapısı
+    created_at = Column(TIMESTAMP(timezone=True), server_default=text('NOW()'), nullable=False)
+    updated_at = Column(TIMESTAMP(timezone=True), onupdate=datetime.utcnow, server_default=text('NOW()'), nullable=False)
+
+    # İlişki tanımlaması
+    programmes = relationship("Programme", back_populates="duration_category")
+
 
 # Veritabanında tabloları oluştur
 Base.metadata.create_all(engine)
