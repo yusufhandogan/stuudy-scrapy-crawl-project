@@ -10,20 +10,23 @@ from sqlalchemy import (
     JSON,
     TIMESTAMP,
     text,
+    func,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
+from dotenv import load_dotenv
+import os
 
 # SQLAlchemy için base sınıfı
 Base = declarative_base()
 
+database_url = os.getenv("DATABASE_URL")
+
 # Veri tabanına bağlantı
-engine = create_engine(
-    "postgresql+psycopg2://user:password@localhost:5432/database_name"
-)
+engine = create_engine(database_url)
 
 
 class University(Base):
