@@ -299,5 +299,27 @@ class DegreeCategories(Base):
     programmes = relationship("Programmes", back_populates="degree_category")
 
 
+class Media(Base):
+    __tablename__ = "media"
+
+    id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
+    )
+    alt = Column(String, nullable=True)  # Alt text for images
+    updated_at = Column(
+        TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    url = Column(String, nullable=False)
+    thumbnail_url = Column(
+        String, nullable=True
+    )  # Thumbnail URL, currently null in the database
+    filename = Column(String, nullable=True)  # Filename of the image
+    mime_type = Column(String, nullable=True)  # MIME type, e.g., "image/svg+xml"
+    filesize = Column(Numeric, nullable=True)  # File size of the image
+    width = Column(Numeric, nullable=True)  # Width of the image
+    height = Column(Numeric, nullable=True)  # Height of the image
+
+
 # Veritabanında tabloları oluştur
 Base.metadata.create_all(engine)
