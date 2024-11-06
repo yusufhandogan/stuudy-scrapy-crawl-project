@@ -81,7 +81,7 @@ class Programme(Base):
     attendance_category_id = Column(
         UUID(as_uuid=True), ForeignKey("attendance_categories.id")
     )
-    degree_id = Column(UUID(as_uuid=True), ForeignKey("degrees.id"))
+    degree_category_id = Column(UUID(as_uuid=True), ForeignKey("degrees.id"))
     meta_title = Column(String)
     meta_desc = Column(String)
     meta_img_id = Column(UUID(as_uuid=True), ForeignKey("media.id"))
@@ -123,6 +123,14 @@ class Programme(Base):
         "AttendanceCategory",
         back_populates="programmes",  # Attendance tablosu ile kurulan ilişki
     )
+
+    degree_category_id = Column(
+        UUID(as_uuid=True), ForeignKey("degree_categories.id")
+    )  # Lisans türlerinin bulunduğu tabloya olan bağlantı
+
+    degree_category = relationship(
+        "DegreeCategories", back_populates="programmes"
+    )  # Lisans türlerinin bulunduğu tabloya olan ilişki tanımlaması
 
 
 class Country(Base):
@@ -272,6 +280,23 @@ class AttendanceCategory(Base):
 
     # Relationships
     programmes = relationship("Programme", back_populates="attendance_category")
+
+
+class DegreeCategories(Base):
+    __tablename__ = "degree_categories"
+
+    id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
+    )
+    title = Column(String, nullable=False)
+    slug = Column(String, nullable=False)
+    updated_at = Column(
+        TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    # Relationship to Programmes for degree_category_id
+    programmes = relationship("Programmes", back_populates="degree_category")
 
 
 # Veritabanında tabloları oluştur
