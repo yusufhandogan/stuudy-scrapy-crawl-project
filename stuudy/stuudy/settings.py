@@ -12,13 +12,42 @@ BOT_NAME = "stuudy"
 SPIDER_MODULES = ["stuudy.spiders"]
 NEWSPIDER_MODULE = "stuudy.spiders"
 
+# DOWNLOADER_CLIENTCONTEXTFACTORY = 'scrapy.core.downloader.contextfactory.BypassSSLFactory'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "stuudy (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+FEED_EXPORT_ENCODING = 'utf-8'
+FEEDS = {
+    'output.csv': {
+        'format': 'csv',
+        'overwrite': True,
+    }
+}
 
+DEFAULT_REQUEST_HEADERS = {"verify":False}
+
+LOG_LEVEL = 'DEBUG'
+
+REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
+
+# Sertifika doğrulamasını devre dışı bırakmak için ayarlar
+# DOWNLOADER_CLIENT_TLS_METHOD = 'TLSv1_3'  # TLS 1.2'yi kullanmak için
+# DOWNLOADER_CLIENT_TLS_VERBOSE_LOGGING = True  # Detaylı loglama yapar
+# DOWNLOADER_CLIENT_TLS_ENABLED = True  # TLS'yi etkinleştirir
+
+# # Proxy ayarları
+# DOWNLOADER_MIDDLEWARES = {
+#     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 1,
+# }
+
+# DOWNLOAD_HANDLERS = {
+#     'https': 'scrapy.core.downloader.handlers.http.HttpDownloadHandler',
+#     'http': 'scrapy.core.downloader.handlers.http.HttpDownloadHandler',
+# }
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 
@@ -88,6 +117,4 @@ ROBOTSTXT_OBEY = False
 #HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # Set settings whose default value is deprecated to a future-proof value
-REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
-FEED_EXPORT_ENCODING = "utf-8"
