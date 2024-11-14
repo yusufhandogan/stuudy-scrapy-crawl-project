@@ -13,16 +13,18 @@ class HochschulkompassSpider(scrapy.Spider):
     allowed_domains = ["hochschulkompass.de"]
 
     custom_settings = {
-        "CONCURRENT_REQUESTS": 64,            # Aynı anda gönderebileceği istek sayısını artır
-        "CONCURRENT_REQUESTS_PER_DOMAIN": 32, # Aynı domaine gönderebileceği maksimum istek sayısı
-        "DOWNLOAD_DELAY": 0.1,                # İstekler arasında çok kısa bir gecikme (daha fazla yüklenmeyi önlemek için)
-        "AUTOTHROTTLE_ENABLED": True,         # Trafik sıkışıklığını önlemek için otomatik hız ayarı
-        "AUTOTHROTTLE_START_DELAY": 0.5,      # İlk isteklerde bekleme süresi
-        "AUTOTHROTTLE_MAX_DELAY": 5,          # Yoğun trafiğe karşı bekleme süresini artır
-        "AUTOTHROTTLE_TARGET_CONCURRENCY": 4, # Paralel istek sayısını dengeleme
+        "CONCURRENT_REQUESTS": 5000,            # Aynı anda gönderebileceği istek sayısını artır
+        "CONCURRENT_REQUESTS_PER_DOMAIN": 1000, # Aynı domaine gönderebileceği maksimum istek sayısı
+        # "DOWNLOAD_DELAY": 0.1,                # İstekler arasında çok kısa bir gecikme (daha fazla yüklenmeyi önlemek için)
+        "AUTOTHROTTLE_ENABLED": False,         # Trafik sıkışıklığını önlemek için otomatik hız ayarı
+        # "AUTOTHROTTLE_START_DELAY": 0.5,      # İlk isteklerde bekleme süresi
+        # "AUTOTHROTTLE_MAX_DELAY": 3,          # Yoğun trafiğe karşı bekleme süresini artır
+        # "AUTOTHROTTLE_TARGET_CONCURRENCY": 10, # Paralel istek sayısını dengeleme
         "RETRY_ENABLED": True,                # Hatalı isteklerde yeniden deneme ayarı
-        "RETRY_TIMES": 5,                     # Hatalı isteklerde yeniden deneme sayısı
-        "DOWNLOAD_TIMEOUT": 30,               # Bir isteğin maksimum bekleme süresi (saniye)
+        "RETRY_TIMES": 20,                     # Hatalı isteklerde yeniden deneme sayısı
+        "DOWNLOAD_TIMEOUT": 60,               # Bir isteğin maksimum bekleme süresi (saniye)
+        "REACTOR_THREADPOOL_MAXSIZE" : 20
+        
     }
 
     start_urls = [
@@ -48,15 +50,16 @@ class HochschulkompassSpider(scrapy.Spider):
 
         response = Selector(text=content)
 
-        # Program linklerini çekiyoruz
-        program_links = response.xpath(
-            '//*[@id="c9905"]/div/section/div[4]/section[10]/a/@href'
-        ).getall()
-
-        for link in program_links:
-            full_link = urljoin("https://www.hochschulkompass.de/", link)
-            self.program_links_list.append(full_link)
-            print("link çekildi:\n ", full_link)
+        # Tüm program linklerini çekiyoruz (section etiketleri içerisinde)
+        sections = response.xpath('//div[@class="clearfix result-section"]/section')
+        
+        for section in sections:
+            # Her bir section içinde 'Mehr Erfahren' linkini çekiyoruz
+            link = section.xpath('.//a[@class="btn-info btn"]/@href').get()
+            if link:
+                full_link = urljoin("https://www.hochschulkompass.de/", link)
+                self.program_links_list.append(full_link)
+                print("link çekildi:\n", full_link)
 
         # Sonraki sayfaya geçiş
         next_page = response.xpath(
@@ -79,6 +82,6 @@ class HochschulkompassSpider(scrapy.Spider):
         """Program linklerini CSV formatında kaydet."""
         df = pd.DataFrame(self.program_links_list, columns=["Program Links"])
         df.to_csv(
-            "hochschulkompass_program_links.csv", index=False, encoding="utf-8-sig"
+            "hochschulkompass_program_link.csv", index=False, encoding="utf-8-sig"
         )
-        self.log("Links saved to hochschulkompass_program_links.csv")
+        self.log("Links saved to hochschulkompass_program_link.csv")

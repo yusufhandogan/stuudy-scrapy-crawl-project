@@ -30,13 +30,13 @@ FEEDS = {
 
 DEFAULT_REQUEST_HEADERS = {"verify":False}
 
-LOG_LEVEL = 'DEBUG'
+LOG_LEVEL = 'ERROR'
 
 REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
 
 # Sertifika doğrulamasını devre dışı bırakmak için ayarlar
 # DOWNLOADER_CLIENT_TLS_METHOD = 'TLSv1_3'  # TLS 1.2'yi kullanmak için
-# DOWNLOADER_CLIENT_TLS_VERBOSE_LOGGING = True  # Detaylı loglama yapar
+DOWNLOADER_CLIENT_TLS_VERBOSE_LOGGING = True  # Detaylı loglama yapar
 # DOWNLOADER_CLIENT_TLS_ENABLED = True  # TLS'yi etkinleştirir
 
 # # Proxy ayarları
